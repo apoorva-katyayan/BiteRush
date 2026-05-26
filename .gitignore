@@ -1,0 +1,37 @@
+# Node
+node_modules/
+.env
+.DS_Store
+dist/
+build/
+
+# Laravel/PHP
+/vendor/
+.env
+.env.*
+/storage/
+/bootstrap/cache/
+/public/uploads/
+
+# Vite
+/.vite
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# MacOS
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# Misc
+*.log
+*.sqlite
+
+# Database
+mysql_data/
