@@ -1,7 +1,9 @@
 # Use the official PHP image with required extensions
-FROM php:8.2-fpm
 
-# Install system dependencies
+# Use PHP 8.3 FPM image
+FROM php:8.3-fpm
+
+# Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -11,6 +13,9 @@ RUN apt-get update && apt-get install -y \
     zip \
     curl \
     && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
+
+# Install MongoDB extension
+RUN pecl install mongodb && docker-php-ext-enable mongodb
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
