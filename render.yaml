@@ -1,25 +1,22 @@
 services:
   - type: web
     name: biterush-backend
-    env: php
+    runtime: docker
     plan: free
-    buildCommand: |
-      composer install
-      php artisan key:generate
-      npm install
-      npm run build
-    startCommand: php artisan serve --host 0.0.0.0 --port 10000
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /up
     envVars:
       - key: APP_NAME
         value: Biterush
       - key: APP_ENV
         value: production
       - key: APP_KEY
-        value: base64:733tNte8g+tpMPv2SL+Bru5EA6yxNLXuwPK29O9Xj8Q=
+        sync: false
       - key: APP_DEBUG
         value: false
       - key: APP_URL
-        value: https://REPLACE_WITH_YOUR_RENDER_URL
+        value: https://biterush-backend.onrender.com
       - key: APP_LOCALE
         value: en
       - key: APP_FALLBACK_LOCALE
@@ -37,11 +34,11 @@ services:
       - key: LOG_DEPRECATIONS_CHANNEL
         value: null
       - key: LOG_LEVEL
-        value: debug
+        value: error
       - key: DB_CONNECTION
         value: mongodb
       - key: MONGO_DSN
-        value: mongodb+srv://apoorva:AnmWz9zfLbRuqTFn@foodapp.s2c3n3v.mongodb.net/
+        sync: false
       - key: MONGO_DATABASE
         value: biterush
       - key: SESSION_DRIVER
@@ -65,9 +62,9 @@ services:
       - key: ADMIN_EMAIL
         value: admin@biterush.com
       - key: ADMIN_PASSWORD
-        value: admin123
+        sync: false
       - key: JWT_SECRET
-        value: biterush_local_development_jwt_secret_key_2026_please_change_in_production
+        generateValue: true
       - key: CLOUDINARY_CLOUD_NAME
         value: ""
       - key: CLOUDINARY_API_KEY
@@ -77,12 +74,47 @@ services:
       - key: RAZORPAY_KEY_ID
         value: rzp_test_SsWlvIKBYfOZVd
       - key: RAZORPAY_KEY_SECRET
-        value: eYUGgSulyrkT26G4uY7V7p8L
+        sync: false
       - key: CURRENCY
         value: INR
-    rootDir: backend
-    autoDeploy: true
+    autoDeployTrigger: commit
     disk:
       name: storage
-      mountPath: /backend/storage
+      mountPath: /var/www/storage
       sizeGB: 1
+
+  - type: web
+    name: biterush-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_BACKEND_URL
+        fromService:
+          type: web
+          name: biterush-backend
+          envVarKey: RENDER_EXTERNAL_HOSTNAME
+    autoDeployTrigger: commit
+
+  - type: web
+    name: biterush-admin
+    runtime: static
+    rootDir: admin
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_BACKEND_URL
+        fromService:
+          type: web
+          name: biterush-backend
+          envVarKey: RENDER_EXTERNAL_HOSTNAME
+    autoDeployTrigger: commit

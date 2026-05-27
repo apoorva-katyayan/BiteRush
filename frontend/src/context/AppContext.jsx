@@ -5,11 +5,18 @@ import toast from 'react-hot-toast';
 
 export const AppContext = createContext();
 
+const normalizeBackendUrl = (url) => {
+    const fallbackUrl = 'http://127.0.0.1:8000';
+    const rawUrl = (url || fallbackUrl).trim().replace(/\/$/, '');
+
+    return /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
+};
+
 const AppContextProvider = (props) => {
 
     
     const [token, setToken] = useState(localStorage.getItem('token')?localStorage.getItem('token') : '');
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    const backendUrl = normalizeBackendUrl(import.meta.env.VITE_BACKEND_URL);
     const [currState, setCurrState] = useState('takeaway');
     const [items, setItems] = useState([]);
     const [loader, setLoader] = useState(false);
