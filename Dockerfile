@@ -3,15 +3,14 @@ FROM php:8.3-fpm
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
     zip \
-    curl \
-    libzip-dev \
-    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd \
-    && pecl install mongodb \
-    && docker-php-ext-enable mongodb
+    curl
+
+# Install PHP extensions using pre-compiled binaries (bypasses slow compilation of mongodb)
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
+RUN chmod +x /usr/local/bin/install-php-extensions && \
+    install-php-extensions pdo pdo_mysql mbstring exif pcntl bcmath gd mongodb
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
